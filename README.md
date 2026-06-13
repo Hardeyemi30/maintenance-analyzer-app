@@ -1,36 +1,368 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# maintenance-analyzer-app
 
-## Getting Started
+# Building Maintenance Request Analyzer
 
-First, run the development server:
+## Project Overview
+
+Building Maintenance Request Analyzer is a cloud-native web application that helps building managers and maintenance teams organize repair requests more efficiently.
+
+Users can submit maintenance issues through a web form, upload photos of the problem, and receive an automatically categorized maintenance ticket. The system analyzes issue descriptions and classifies them into categories such as Plumbing, Electrical, HVAC, or General Maintenance.
+
+The application demonstrates the use of Microsoft Azure cloud services, AI-powered text analysis, cloud storage, and NoSQL data storage.
+
+---
+
+## Features
+
+### Current Features
+
+* Submit maintenance requests
+* Upload maintenance issue photos
+* Generate maintenance tickets
+* Automatic issue classification
+* Key phrase extraction
+* View ticket details after submission
+
+### Maintenance Categories
+
+* Plumbing
+* Electrical
+* HVAC
+* General Maintenance
+
+---
+
+## Technology Stack
+
+### Frontend
+
+* Next.js 15
+* TypeScript
+* Tailwind CSS
+
+### Backend
+
+* Next.js API Routes
+
+### Cloud Services
+
+* Azure App Service
+* Azure Blob Storage
+* Azure Cosmos DB
+* Azure AI Language Service
+
+---
+
+## Azure Services Used
+
+### Azure App Service
+
+Hosts the web application and API endpoints.
+
+### Azure Blob Storage
+
+Stores uploaded maintenance images.
+
+Container:
+
+```text
+maintenance-images
+```
+
+### Azure Cosmos DB
+
+Stores maintenance tickets and AI analysis results.
+
+Database:
+
+```text
+MaintenanceDB
+```
+
+Container:
+
+```text
+Tickets
+```
+
+### Azure AI Language Service
+
+Provides:
+
+* Key phrase extraction
+* Text analysis
+* Maintenance request categorization support
+
+---
+
+## Application Workflow
+
+```text
+User Submits Request
+        ↓
+Upload Image
+        ↓
+Store Image in Azure Blob Storage
+        ↓
+Analyze Description
+        ↓
+Classify Maintenance Category
+        ↓
+Extract Key Phrases
+        ↓
+Save Ticket to Cosmos DB
+        ↓
+Display Ticket Results
+```
+
+---
+
+## Project Structure
+
+```text
+src
+│
+├── app
+│   ├── page.tsx
+│   ├── submit
+│   │   └── page.tsx
+│   ├── ticket
+│   │   └── page.tsx
+│   └── api
+│       ├── upload
+│       │   └── route.ts
+│       └── tickets
+│           └── route.ts
+│
+├── lib
+│   └── classifyIssue.ts
+│
+public
+│
+└── images
+```
+
+---
+
+## Environment Variables
+
+Create a file named:
+
+```text
+.env.local
+```
+
+Add the following variables:
+
+```env
+AZURE_STORAGE_CONNECTION_STRING=
+COSMOS_ENDPOINT=
+COSMOS_KEY=
+LANGUAGE_ENDPOINT=
+LANGUAGE_KEY=
+```
+
+Do not commit this file to GitHub.
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+```
+
+Move into the project:
+
+```bash
+cd building-maintenance-request-analyzer
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Required Packages
 
-To learn more about Next.js, take a look at the following resources:
+Install Azure packages:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install @azure/storage-blob
+npm install @azure/cosmos
+npm install @azure/ai-text-analytics
+npm install uuid
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Running the Application
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Start the development server:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev
+```
+
+Available pages:
+
+### Home
+
+```text
+/
+```
+
+### Submit Request
+
+```text
+/submit
+```
+
+### Ticket Details
+
+```text
+/ticket
+```
+
+---
+
+## Example Maintenance Requests
+
+### Plumbing
+
+```text
+Water leaking under kitchen sink.
+```
+
+Expected Category:
+
+```text
+Plumbing
+```
+
+### HVAC
+
+```text
+The air conditioner stopped cooling.
+```
+
+Expected Category:
+
+```text
+HVAC
+```
+
+### Electrical
+
+```text
+Power outlet sparks when plugged in.
+```
+
+Expected Category:
+
+```text
+Electrical
+```
+
+### General
+
+```text
+Paint peeling from hallway wall.
+```
+
+Expected Category:
+
+```text
+General
+```
+
+---
+
+## Responsible AI Considerations
+
+### Fairness
+
+Different users may describe the same issue differently. The application attempts to classify requests consistently, but wording can affect results.
+
+### Reliability
+
+Classification results may not always be accurate. Maintenance staff should review tickets before assigning work.
+
+### Privacy
+
+Users should not upload sensitive personal information. Only maintenance-related information should be submitted.
+
+### Transparency
+
+Users are informed that AI is assisting with issue categorization and analysis.
+
+### Accountability
+
+Final maintenance decisions remain the responsibility of maintenance personnel and building managers.
+
+---
+
+## Future Enhancements
+
+### Agentic AI
+
+Future versions may:
+
+* Automatically assign maintenance staff
+* Prioritize urgent repairs
+* Recommend repair procedures
+* Track maintenance completion
+* Generate maintenance reports
+
+### IoT Integration
+
+Future versions may integrate with sensors that detect:
+
+* Water leaks
+* HVAC failures
+* Electrical faults
+* Temperature anomalies
+* Energy consumption
+
+Sensors could automatically create maintenance tickets without manual user input.
+
+---
+
+## Known Limitations
+
+* Classification currently relies on keyword-based logic.
+* Image analysis is not yet implemented.
+* AI classification accuracy depends on the quality of user descriptions.
+* Human review is recommended for all maintenance requests.
+
+---
+
+## Contributors
+
+### Project Team
+
+* Adeyemi Jaafar
+* Bilal Berhane
+
+---
+
+## License
+
+This project was developed for academic purposes as part of the INTP302 Cloud Computing and AI coursework.
