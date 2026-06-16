@@ -72,7 +72,6 @@ export function classifyIssue(
       confidence: 0.94,
     };
   }
-
   return {
     category: "General",
     confidence: 0.70,

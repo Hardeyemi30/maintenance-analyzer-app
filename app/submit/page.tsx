@@ -10,6 +10,7 @@ export default function SubmitPage() {
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [imagePreview, setImagePreview] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +30,25 @@ export default function SubmitPage() {
 
     router.push("/ticket");
   };
+
+  const handleUpload = async () => {
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      setImagePreview(data.imageUrl);
+    } else {
+      alert("Failed to upload image");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-green-300 flex justify-center items-center p-8">
       <div className="bg-black p-8 rounded-xl shadow-lg w-full max-w-2xl">
@@ -88,6 +108,7 @@ export default function SubmitPage() {
 
           <button
             type="submit"
+            onClick={handleUpload}
             className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700"
           >
             Submit Request

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BlobServiceClient } from "@azure/storage-blob";
-import { v4 as uuidv4 } from "uuid";
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,39 +15,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const connectionString =
-      process.env.AZURE_STORAGE_CONNECTION_STRING!;
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-    const blobServiceClient =
-      BlobServiceClient.fromConnectionString(connectionString);
-
-    const containerClient =
-      blobServiceClient.getContainerClient(
-        "maintenance-images"
-      );
-
-    // Create unique filename
-    const uniqueFileName = `${uuidv4()}-${file.name}`;
-
-    const blockBlobClient =
-      containerClient.getBlockBlobClient(uniqueFileName);
-
-    const buffer = Buffer.from(
-      await file.arrayBuffer()
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+      process.env.AZURE_STORAGE_CONNECTION_STRING!
+    );
+    const containerClient = blobServiceClient.getContainerClient(
+      process.env.AZURE_STORAGE_CONTAINER_NAME!
     );
 
+    const fileName = `${Date.now()}-${file.name}`;
+    const blockBlobClient = containerClient.getBlockBlobClient(fileName);
     await blockBlobClient.uploadData(buffer);
 
     return NextResponse.json({
-      success: true,
-      imageUrl: blockBlobClient.url,
+        success: true,
+        imageUrl: blockBlobClient.url,
     });
   } catch (error) {
     console.error(error);
-
     return NextResponse.json(
-      { error: "Upload failed" },
+      { error: "Failed to upload image" },
       { status: 500 }
     );
+    }
   }
-}
