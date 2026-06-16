@@ -10,7 +10,7 @@ export default function SubmitPage() {
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [imagePreview, setImagePreview] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [file] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
