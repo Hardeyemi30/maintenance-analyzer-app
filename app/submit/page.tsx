@@ -10,7 +10,7 @@ export default function SubmitPage() {
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [imagePreview, setImagePreview] = useState("");
-  const [file] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +20,7 @@ export default function SubmitPage() {
       name,
       email,
       description,
-      category: "General", // replace later with classifyIssue()
+      category: "General",
       keyPhrases: ["sample phrase"],
       imageUrl: imagePreview,
       submittedAt: new Date().toLocaleDateString(),
@@ -42,11 +42,39 @@ export default function SubmitPage() {
     });
 
     const data = await response.json();
-    if (data.success) {
-      setImagePreview(data.imageUrl);
-    } else {
+    if (!data.success) {
       alert("Failed to upload image");
+      return;
     }
+
+    setImagePreview(data.imageUrl);
+
+    const result = classifyIssue(description);
+    const imageUrl = data.imageUrl || imagePreview;
+
+    // Create ticket object
+    const ticket = {
+      name,
+      email,
+      description,
+      category: result.category,
+      keyPhrases: description.split(" ").slice(0, 3),
+      imageUrl,
+    };
+
+    // Save ticket to Cosmos DB
+    const ticketResponse = await fetch("/api/tickets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(ticket),
+    });
+
+    const savedTicket = await ticketResponse.json();
+
+    // Save locally for ticket page
+    localStorage.setItem("maintenanceTicket", JSON.stringify(savedTicket));
   };
 
   return (
@@ -117,4 +145,22 @@ export default function SubmitPage() {
       </div>
     </div>
   );
+}
+
+function classifyIssue(description: string): { category: string } {
+  // simple keyword-based classifier
+  const text = (description || "").toLowerCase();
+  if (text.includes("leak") || text.includes("water") || text.includes("pipe")) {
+    return { category: "Plumbing" };
+  }
+  if (text.includes("light") || text.includes("bulb") || text.includes("electr")) {
+    return { category: "Electrical" };
+  }
+  if (text.includes("door") || text.includes("window") || text.includes("lock")) {
+    return { category: "Carpentry" };
+  }
+  if (text.includes("pest") || text.includes("rodent") || text.includes("insect")) {
+    return { category: "Pest Control" };
+  }
+  return { category: "General" };
 }
